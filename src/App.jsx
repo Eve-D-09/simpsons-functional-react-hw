@@ -11,53 +11,64 @@ const App = () => {
   const [sort, setSort] = useState("");
 
   const getData = async () => {
+    
     try {
       const { data } = await axios.get(
         `https://thesimpsonsquoteapi.glitch.me/quotes?count=50`
       );
+      data.forEach((element, index) => {
+        element.id = index + Math.random();
+      });
       setSimpsons(data);
     } catch (error) {
       console.log(error);
     }
-    // data.forEach((element, index) => {
-    //   element.id = index + Math.random();
-    // });
+    
   };
 
   useEffect(() => {
     getData();
+    
   }, []);
 
-  console.log(simpsons);
+  // console.log(simpsons);
 
-  const toggleLiked = () => {
-    const simpsons = [...simpsons];
-    const indexOf = simpsons.findIndex((char) => {
-      return char.id === id;
-    });
-    simpsons[indexOf].liked = !simpsons[indexOf].liked;
-    setSimpsons({ ...simpsons, char });
+  const onSearchInput = (value) => {
+    setSearch(value);
   };
 
-  const onDelete = () => {
-    const simpsons = [...simpsons];
-    const indexOf = simpsons.findIndex((char) => {
+  const onSortCharacters = (value) => {
+    setSort(value);
+  };
+
+  const toggleLiked = (id) => {
+    const _simpsons = [...simpsons];
+    const indexOf = _simpsons.findIndex((char) => {
       return char.id === id;
     });
-    simpsons.splice(indexOf, 1);
-    setSimpsons({ ...simpsons, char });
+    _simpsons[indexOf].liked = !simpsons[indexOf].liked;
+    setSimpsons(_simpsons);
+  };
+
+  const onDelete = (id) => {
+    const _simpsons = [...simpsons];
+    const indexOf = _simpsons.findIndex((char) => {
+      return char.id === id;
+    });
+    _simpsons.splice(indexOf, 1);
+    setSimpsons( _simpsons);
   };
 
   if (!simpsons) return <Loading />;
 
-  if (simpsons.length === 0) return <p>You deleted everything!</p>;
+  
 
   let filtered = [...simpsons];
   if (search) {
     filtered = filtered.filter((item) => {
       return item.character
         .toLowerCase()
-        .includes(this.props.search.toLowerCase());
+        .includes(search.toLowerCase());
     });
   }
 
@@ -78,15 +89,17 @@ const App = () => {
     if (char.liked) total++;
   });
 
+  if (filtered.length === 0) return <p>We're sorry, there's no results...</p>;
+
   return (
     <>
       <h1>Total no of liked chars #{total}</h1>
-      <Controls search={search} sort={sort} />
-      <Simpsons simpsons={simpsons} toggleLiked={toggleLiked} onDelete={onDelete} />
+      <Controls onSearchInput={onSearchInput} onSortCharacters={onSortCharacters} />
+      <Simpsons simpsons={filtered} toggleLiked={toggleLiked} onDelete={onDelete} />
     </>
   );
 };
 
 export default App;
 
-//  component simpsons: simpsons={filtered}
+
